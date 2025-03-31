@@ -1,5 +1,7 @@
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
+import Navbar from '@/components/Navbar';
+
 
 export const metadata = {
   title: "Finance Manager",
@@ -16,6 +18,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <div className="min-h-screen bg-gray-50">
+          <Navbar />
             {children}
             <footer className="py-4 text-center bg-white border-t mt-8">
               <p className="text-sm text-gray-600">
