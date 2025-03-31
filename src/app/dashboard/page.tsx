@@ -9,9 +9,10 @@ export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
 
+
   useEffect(() => {
     if (!user && !isLoading) {
-      router.push("/");
+      router.push("/unauthorized");
     }
   }, [user, isLoading, router]);
 
@@ -24,7 +25,7 @@ export default function Dashboard() {
   }
 
   if (!user) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
