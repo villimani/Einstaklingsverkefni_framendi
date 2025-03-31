@@ -1,27 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-
-// Simple types
-type Account = {
-  id: number;
-  name: string;
-  balance: string;
-};
-
-type Category = {
-  name: string;
-};
-
-type Transaction = {
-  amount: string;
-  transaction_type: "income" | "expense";
-  category_name: string;
-  account_balance: string;
-};
+import { useAuth } from "@/context/AuthContext";
+import { Account, Category, Transaction } from "@/types/accounts";
+import { apiFetch, getTransactions } from "@/lib/api";
 
 export default function TransactionsPage() {
+  const { token } = useAuth();
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("");
@@ -29,150 +16,120 @@ export default function TransactionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // New transaction form
+  // Form state
   const [showForm, setShowForm] = useState(false);
   const [amount, setAmount] = useState("");
-  const [categoryId, setCategoryId] = useState("1"); // Default to first category
+  const [categoryId, setCategoryId] = useState("1");
   const [transactionType, setTransactionType] = useState<"income" | "expense">(
     "income"
   );
   const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/";
-      return;
+  const fetchAccounts = useCallback(async () => {
+    try {
+      const data = await apiFetch<{ result: Account[] }>(
+        "/api/account/getallaccounts",
+        token
+      );
+      setAccounts(data.result || []);
+      return data.result || [];
+    } catch (err) {
+      console.error(err);
+      setError("Could not load accounts");
+      return [];
     }
+  }, [token]);
 
-    // Fetch accounts and categories
-    fetchAccounts();
-    fetchCategories();
-  }, []);
+  const fetchCategories = useCallback(async () => {
+    try {
+      const data = await apiFetch<{ categories: Category[] }>(
+        "/api/categories",
+        token
+      );
+      setCategories(data.categories || []);
+      return data.categories || [];
+    } catch (err) {
+      console.error(err);
+      setError("Could not load categories");
+      return [];
+    }
+  }, [token]);
 
-  // When an account is selected, fetch its transactions
+  const fetchTransactions = useCallback(
+    async (accountId: string) => {
+      if (!token) return;
+
+      setIsLoading(true);
+      try {
+        const data = await getTransactions(accountId, token);
+        setTransactions(data);
+      } catch (err) {
+        console.error(err);
+        setError("Could not load transactions");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [token]
+  );
+
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        const [accountRes] = await Promise.all([
+          fetchAccounts(),
+          fetchCategories(),
+        ]);
+
+        if (accountRes.length > 0) {
+          const firstId = accountRes[0].id.toString();
+          setSelectedAccount(firstId);
+          await fetchTransactions(firstId);
+        }
+      } catch (err) {
+        console.log(err);
+        setError("Failed to load initial data");
+      }
+    };
+
+    fetchData();
+  }, [token, fetchAccounts, fetchCategories, fetchTransactions]);
+
   useEffect(() => {
     if (selectedAccount) {
       fetchTransactions(selectedAccount);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, fetchTransactions]);
 
-  //log account
-  console.log("Accounts:", accounts);
-  // Fetch accounts from API
-  const fetchAccounts = async () => {
-    try {
-      const response = await fetch("/api/account/getallaccounts", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch accounts");
-      }
-
-      const data = await response.json();
-      console.log("acounts data", data), setAccounts(data.result || []);
-
-      // Select first account by default if available
-      if (data.result && data.result.length > 0) {
-        setSelectedAccount("1"); // Assuming the first account has ID 1
-      }
-    } catch (err) {
-      setError("Could not load accounts");
-      console.error(err);
-    }
-  };
-
-  // Fetch categories from API
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/categories", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-
-      const data = await response.json();
-      setCategories(data.categories || []);
-    } catch (err) {
-      console.error("Could not load categories", err);
-    }
-  };
-
-  // Fetch transactions for a specific account
-  const fetchTransactions = async (accountId: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/account/${accountId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
-      }
-
-      const data = await response.json();
-      setTransactions(data.accountTransactions || []);
-    } catch (err) {
-      setError("Could not load transactions");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Create a new transaction
   const handleCreateTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Creating transaction for account ID:", selectedAccount);
-    console.log("Transaction data:", {
-      amount: parseFloat(amount),
-      category_id: parseInt(categoryId),
-      transaction_type: transactionType,
-      description,
-    });
     try {
-      const url = `/api/account/${selectedAccount}/transaction`;
-      console.log("Request URL:", url);
-      const response = await fetch(
-        `/api/account/${selectedAccount}/transaction`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            amount: parseFloat(amount),
-            category_id: parseInt(categoryId),
-            transaction_type: transactionType,
-            description,
-          }),
-        }
-      );
+      const res = await fetch(`/api/account/${selectedAccount}/transaction`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          category_id: parseInt(categoryId),
+          transaction_type: transactionType,
+          description,
+        }),
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to create transaction");
-      }
+      if (!res.ok) throw new Error("Failed to create transaction");
 
-      // Reset form and refresh transactions
       setAmount("");
       setDescription("");
       setShowForm(false);
       fetchTransactions(selectedAccount);
     } catch (err) {
-      setError("Could not create transaction");
       console.error(err);
+      setError("Could not create transaction");
     }
   };
 
@@ -180,7 +137,6 @@ export default function TransactionsPage() {
     <div className="p-4 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Transactions</h1>
 
-      {/* Account selector */}
       <div className="mb-4">
         <label className="block mb-1">Select Account:</label>
         <select
@@ -189,15 +145,14 @@ export default function TransactionsPage() {
           className="border p-2 rounded w-full"
         >
           <option value="">-- Select an account --</option>
-          {accounts.map((account, index) => (
-            <option key={index} value={account.id.toString()}>
+          {accounts.map((account) => (
+            <option key={account.id} value={account.id.toString()}>
               {account.name} (${parseFloat(account.balance).toFixed(2)})
             </option>
           ))}
         </select>
       </div>
 
-      {/* New transaction button & form */}
       {selectedAccount && (
         <div className="mb-4">
           <button
@@ -272,44 +227,42 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* Transactions list */}
-      {selectedAccount &&
-        (isLoading ? (
-          <p>Loading transactions...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : transactions.length === 0 ? (
-          <p>No transactions found for this account.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Type</th>
-                  <th className="border p-2 text-left">Amount</th>
-                  <th className="border p-2 text-left">Category</th>
+      {isLoading ? (
+        <p>Loading transactions...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : transactions.length === 0 ? (
+        <p>No transactions found for this account.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2 text-left">Type</th>
+                <th className="border p-2 text-left">Amount</th>
+                <th className="border p-2 text-left">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((transaction, index) => (
+                <tr key={index}>
+                  <td className="border p-2">
+                    {transaction.transaction_type === "income" ? (
+                      <span className="text-green-600">Income</span>
+                    ) : (
+                      <span className="text-red-600">Expense</span>
+                    )}
+                  </td>
+                  <td className="border p-2">
+                    ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
+                  </td>
+                  <td className="border p-2">{transaction.category_name}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {transactions.map((transaction, index) => (
-                  <tr key={index}>
-                    <td className="border p-2">
-                      {transaction.transaction_type === "income" ? (
-                        <span className="text-green-600">Income</span>
-                      ) : (
-                        <span className="text-red-600">Expense</span>
-                      )}
-                    </td>
-                    <td className="border p-2">
-                      ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
-                    </td>
-                    <td className="border p-2">{transaction.category_name}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="mt-4">
         <Link href="/dashboard" className="text-blue-500">

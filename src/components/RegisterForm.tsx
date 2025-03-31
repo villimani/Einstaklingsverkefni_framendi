@@ -1,46 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
 export default function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const { register, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      // Registration successful
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (err: any) {
-      setError(err.message || "Failed to register. Please try again.");
-    } finally {
-      setIsLoading(false);
+    const success = await register(username, email, password);
+    if (!success) {
+      setError("Registration failed. Try again");
+    } else {
+      onSuccess?.();
     }
   };
 

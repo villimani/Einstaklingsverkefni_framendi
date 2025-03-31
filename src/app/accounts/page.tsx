@@ -1,87 +1,71 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-
-// Simple Account type
-type Account = {
-  name: string;
-  balance: string;
-};
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { Account } from "@/types/accounts";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const { token, isLoading } = useAuth();
 
-  // Create a new account
   const [showForm, setShowForm] = useState(false);
-  const [accountName, setAccountName] = useState('');
-  const [accountBalance, setAccountBalance] = useState('');
-
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/';
-      return;
-    }
-
-    // Fetch accounts
-    fetchAccounts();
-  }, []);
+  const [accountName, setAccountName] = useState("");
+  const [accountBalance, setAccountBalance] = useState("");
+  const router = useRouter();
 
   // Fetch accounts from API
-  const fetchAccounts = async () => {
-    setIsLoading(true);
+  const fetchAccounts = useCallback(async () => {
     try {
-      const response = await fetch('/api/account/getallaccounts', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch accounts');
-      }
-
-      const data = await response.json();
+      const data = await apiFetch<{ result: Account[] }>(
+        "/api/account/getallaccounts",
+        token
+      );
       setAccounts(data.result || []);
     } catch (err) {
-      setError('Could not load accounts');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      console.log(err);
+      setError("Could not load accounts");
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token && !isLoading) {
+      router.push("/");
+    } else if (token) {
+      fetchAccounts();
+    }
+  }, [token, isLoading, router, fetchAccounts]);
 
   // Create a new account
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/account/register', {
-        method: 'POST',
+      const response = await fetch("/api/account/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           accountName,
-          balance: parseFloat(accountBalance)
-        })
+          balance: parseFloat(accountBalance),
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create account');
+        throw new Error("Failed to create account");
       }
 
       // Reset form and refresh accounts
-      setAccountName('');
-      setAccountBalance('');
+      setAccountName("");
+      setAccountBalance("");
       setShowForm(false);
       fetchAccounts();
     } catch (err) {
-      setError('Could not create account');
+      setError("Could not create account");
       console.error(err);
     }
   };
@@ -89,17 +73,20 @@ export default function AccountsPage() {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Your Accounts</h1>
-      
+
       <div className="mb-4">
-        <button 
-          onClick={() => setShowForm(!showForm)} 
+        <button
+          onClick={() => setShowForm(!showForm)}
           className="bg-blue-500 text-white px-3 py-2 rounded mb-4"
         >
-          {showForm ? 'Cancel' : 'Add New Account'}
+          {showForm ? "Cancel" : "Add New Account"}
         </button>
-        
+
         {showForm && (
-          <form onSubmit={handleCreateAccount} className="p-4 border rounded mb-4">
+          <form
+            onSubmit={handleCreateAccount}
+            className="p-4 border rounded mb-4"
+          >
             <div className="mb-3">
               <label className="block mb-1">Account Name</label>
               <input
@@ -121,7 +108,10 @@ export default function AccountsPage() {
                 required
               />
             </div>
-            <button type="submit" className="bg-green-500 text-white px-3 py-2 rounded">
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-3 py-2 rounded"
+            >
               Create Account
             </button>
           </form>
@@ -139,14 +129,18 @@ export default function AccountsPage() {
           {accounts.map((account, index) => (
             <div key={index} className="border p-4 rounded shadow">
               <h2 className="text-xl font-semibold">{account.name}</h2>
-              <p className="text-lg">Balance: ${parseFloat(account.balance).toFixed(2)}</p>
+              <p className="text-lg">
+                Balance: ${parseFloat(account.balance).toFixed(2)}
+              </p>
             </div>
           ))}
         </div>
       )}
 
       <div className="mt-4">
-        <Link href="/dashboard" className="text-blue-500">Back to Dashboard</Link>
+        <Link href="/dashboard" className="text-blue-500">
+          Back to Dashboard
+        </Link>
       </div>
     </div>
   );

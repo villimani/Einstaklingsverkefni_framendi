@@ -1,44 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading } = useAuth();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      // Connect to your API
-      const response = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-      
-      // Save user data and token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Redirect to dashboard (we'll create this page next)
-      window.location.href = '/dashboard';
-    } catch (err: any) {
-      setError(err.message || 'Failed to login. Please try again.');
-    } finally {
-      setIsLoading(false);
+    setError("");
+
+    const success = await login(email, password);
+    if (!success) {
+      setError("Invalid credentials. Please try again");
+    } else {
+      router.push("/dashboard");
     }
   };
 
@@ -49,7 +30,7 @@ export default function LoginForm() {
           {error}
         </div>
       )}
-      
+
       <div className="mb-4">
         <label htmlFor="email" className="block mb-1 font-medium">
           Email
@@ -63,7 +44,7 @@ export default function LoginForm() {
           required
         />
       </div>
-      
+
       <div className="mb-6">
         <label htmlFor="password" className="block mb-1 font-medium">
           Password
@@ -77,13 +58,13 @@ export default function LoginForm() {
           required
         />
       </div>
-      
+
       <button
         type="submit"
         className="w-full bg-blue-500 text-white py-2 px-4 rounded font-medium hover:bg-blue-600 transition"
         disabled={isLoading}
       >
-        {isLoading ? 'Logging in...' : 'Login'}
+        {isLoading ? "Logging in..." : "Login"}
       </button>
     </form>
   );
