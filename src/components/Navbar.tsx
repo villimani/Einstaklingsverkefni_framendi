@@ -1,35 +1,38 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import "./navbar.css";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-useEffect(() => {
-  try {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-    
-    // redirect
-    if (!token && 
-        (pathname === '/dashboard' || 
-         pathname === '/accounts' || 
-         pathname === '/transactions' || 
-         pathname === '/uploads')) {
-      router.push('/unauthorized');
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+      
+      if (!token && 
+          (pathname === '/dashboard' || 
+           pathname === '/accounts' || 
+           pathname === '/transactions' || 
+           pathname === '/uploads')) {
+        router.push('/unauthorized');
+      }
+    } catch (error) {
+      console.error('Error checking login status:', error);
     }
-  } catch (error) {
-    console.error('Error checking login status:', error);
-  }
-}, [pathname, router]);
-  // never show navbar on login page or unauthorized page
+  }, [pathname, router]);
+
   if (pathname === "/" || pathname === "/unauthorized") {
     return null;
   }
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -38,53 +41,45 @@ useEffect(() => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center">
-          <div className="text-xl font-bold">Finance Manager</div>
+    <nav className="navbar">
+      <div className="nav-container">
+        <div className="nav-content">
+          <div className="nav-brand">Finance Manager</div>
 
-          <div className="flex space-x-4">
-            <Link
-              href="/dashboard"
-              className={`px-3 py-1 rounded ${
-                pathname === "/dashboard" ? "bg-blue-800" : "hover:bg-blue-700"
-              }`}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/accounts"
-              className={`px-3 py-1 rounded ${
-                pathname === "/accounts" ? "bg-blue-800" : "hover:bg-blue-700"
-              }`}
-            >
-              Accounts
-            </Link>
-            <Link
-              href="/transactions"
-              className={`px-3 py-1 rounded ${
-                pathname === "/transactions"
-                  ? "bg-blue-800"
-                  : "hover:bg-blue-700"
-              }`}
-            >
-              Transactions
-            </Link>
-            <Link
-              href="/uploads"
-              className={`px-3 py-1 rounded ${
-                pathname === "/uploads" ? "bg-blue-800" : "hover:bg-blue-700"
-              }`}
-            >
-              Uploads
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1 rounded bg-red-500 hover:bg-red-600"
-            >
-              Logout
-            </button>
-          </div>
+          {isLoggedIn && (
+            <div className="nav-buttons">
+              <button
+                onClick={() => handleNavigation('/dashboard')}
+                className={`nav-button ${pathname === "/dashboard" ? "active" : ""}`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => handleNavigation('/accounts')}
+                className={`nav-button ${pathname === "/accounts" ? "active" : ""}`}
+              >
+                Accounts
+              </button>
+              <button
+                onClick={() => handleNavigation('/transactions')}
+                className={`nav-button ${pathname === "/transactions" ? "active" : ""}`}
+              >
+                Transactions
+              </button>
+              <button
+                onClick={() => handleNavigation('/uploads')}
+                className={`nav-button ${pathname === "/uploads" ? "active" : ""}`}
+              >
+                Uploads
+              </button>
+              <button
+                onClick={handleLogout}
+                className="nav-logout"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>

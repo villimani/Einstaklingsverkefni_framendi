@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Account } from "@/types/accounts";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
+import "./accounts.css";
 
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -71,47 +71,41 @@ export default function AccountsPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Your Accounts</h1>
+    <div className="accounts-container">
+      <h1 className="accounts-title">Your Accounts</h1>
 
       <div className="mb-4">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+          className={`btn ${showForm ? "btn-secondary" : "btn-primary"}`}
         >
           {showForm ? "Cancel" : "Add New Account"}
         </button>
 
         {showForm && (
-          <form
-            onSubmit={handleCreateAccount}
-            className="p-4 border rounded mb-4"
-          >
-            <div className="mb-3">
-              <label className="block mb-1">Account Name</label>
+          <form onSubmit={handleCreateAccount} className="account-form">
+            <div className="form-group">
+              <label className="form-label">Account Name</label>
               <input
                 type="text"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
-                className="border p-2 w-full rounded"
+                className="form-input"
                 required
               />
             </div>
-            <div className="mb-3">
-              <label className="block mb-1">Initial Balance</label>
+            <div className="form-group">
+              <label className="form-label">Initial Balance</label>
               <input
                 type="number"
                 value={accountBalance}
                 onChange={(e) => setAccountBalance(e.target.value)}
-                className="border p-2 w-full rounded"
+                className="form-input"
                 step="0.01"
                 required
               />
             </div>
-            <button
-              type="submit"
-              className="bg-green-500 text-white px-3 py-2 rounded"
-            >
+            <button type="submit" className="btn btn-success">
               Create Account
             </button>
           </form>
@@ -119,17 +113,17 @@ export default function AccountsPage() {
       </div>
 
       {isLoading ? (
-        <p>Loading accounts...</p>
+        <p className="loading-message">Loading accounts...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="error-message">{error}</p>
       ) : accounts.length === 0 ? (
         <p>No accounts found. Create your first account!</p>
       ) : (
-        <div className="grid gap-4">
+        <div className="accounts-grid">
           {accounts.map((account, index) => (
-            <div key={index} className="border p-4 rounded shadow">
-              <h2 className="text-xl font-semibold">{account.name}</h2>
-              <p className="text-lg">
+            <div key={index} className="account-card">
+              <h2 className="account-name">{account.name}</h2>
+              <p className="account-balance">
                 Balance: ${parseFloat(account.balance).toFixed(2)}
               </p>
             </div>
@@ -137,11 +131,12 @@ export default function AccountsPage() {
         </div>
       )}
 
-      <div className="mt-4">
-        <Link href="/dashboard" className="text-blue-500">
-          Back to Dashboard
-        </Link>
-      </div>
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="btn btn-back"
+      >
+        Back to Dashboard
+      </button>
     </div>
   );
 }

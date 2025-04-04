@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Account, Category, Transaction } from "@/types/accounts";
 import { apiFetch, getTransactions } from "@/lib/api";
+import "./transactions.css";
 
 export default function TransactionsPage() {
   const { token } = useAuth();
+  const router = useRouter();
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -20,9 +22,7 @@ export default function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("1");
-  const [transactionType, setTransactionType] = useState<"income" | "expense">(
-    "income"
-  );
+  const [transactionType, setTransactionType] = useState<"income" | "expense">("income");
   const [description, setDescription] = useState("");
 
   const fetchAccounts = useCallback(async () => {
@@ -134,15 +134,15 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Transactions</h1>
+    <div className="transactions-container">
+      <h1 className="transactions-title">Transactions</h1>
 
       <div className="mb-4">
-        <label className="block mb-1">Select Account:</label>
+        <label className="form-label">Select Account:</label>
         <select
           value={selectedAccount}
           onChange={(e) => setSelectedAccount(e.target.value)}
-          className="border p-2 rounded w-full"
+          className="form-select"
         >
           <option value="">-- Select an account --</option>
           {accounts.map((account) => (
@@ -157,47 +157,44 @@ export default function TransactionsPage() {
         <div className="mb-4">
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+            className={`btn ${showForm ? "btn-secondary" : "btn-primary"}`}
           >
             {showForm ? "Cancel" : "Add New Transaction"}
           </button>
 
           {showForm && (
-            <form
-              onSubmit={handleCreateTransaction}
-              className="p-4 border rounded mb-4"
-            >
-              <div className="mb-3">
-                <label className="block mb-1">Amount</label>
+            <form onSubmit={handleCreateTransaction} className="transaction-form">
+              <div className="form-group">
+                <label className="form-label">Amount</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="border p-2 w-full rounded"
+                  className="form-input"
                   step="0.01"
                   required
                 />
               </div>
-              <div className="mb-3">
-                <label className="block mb-1">Type</label>
+              <div className="form-group">
+                <label className="form-label">Type</label>
                 <select
                   value={transactionType}
                   onChange={(e) =>
                     setTransactionType(e.target.value as "income" | "expense")
                   }
-                  className="border p-2 w-full rounded"
+                  className="form-select"
                   required
                 >
                   <option value="income">Income</option>
                   <option value="expense">Expense</option>
                 </select>
               </div>
-              <div className="mb-3">
-                <label className="block mb-1">Category</label>
+              <div className="form-group">
+                <label className="form-label">Category</label>
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="border p-2 w-full rounded"
+                  className="form-select"
                   required
                 >
                   {categories.map((category, index) => (
@@ -207,19 +204,16 @@ export default function TransactionsPage() {
                   ))}
                 </select>
               </div>
-              <div className="mb-3">
-                <label className="block mb-1">Description (Optional)</label>
+              <div className="form-group">
+                <label className="form-label">Description (Optional)</label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="border p-2 w-full rounded"
+                  className="form-input"
                 />
               </div>
-              <button
-                type="submit"
-                className="bg-green-500 text-white px-3 py-2 rounded"
-              >
+              <button type="submit" className="btn btn-success">
                 Create Transaction
               </button>
             </form>
@@ -228,35 +222,33 @@ export default function TransactionsPage() {
       )}
 
       {isLoading ? (
-        <p>Loading transactions...</p>
+        <p className="loading-message">Loading transactions...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="error-message">{error}</p>
       ) : transactions.length === 0 ? (
         <p>No transactions found for this account.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="transactions-table">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2 text-left">Type</th>
-                <th className="border p-2 text-left">Amount</th>
-                <th className="border p-2 text-left">Category</th>
+              <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Category</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((transaction, index) => (
                 <tr key={index}>
-                  <td className="border p-2">
+                  <td>
                     {transaction.transaction_type === "income" ? (
-                      <span className="text-green-600">Income</span>
+                      <span className="income-text">Income</span>
                     ) : (
-                      <span className="text-red-600">Expense</span>
+                      <span className="expense-text">Expense</span>
                     )}
                   </td>
-                  <td className="border p-2">
-                    ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
-                  </td>
-                  <td className="border p-2">{transaction.category_name}</td>
+                  <td>${Math.abs(parseFloat(transaction.amount)).toFixed(2)}</td>
+                  <td>{transaction.category_name}</td>
                 </tr>
               ))}
             </tbody>
@@ -264,11 +256,12 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      <div className="mt-4">
-        <Link href="/dashboard" className="text-blue-500">
-          Back to Dashboard
-        </Link>
-      </div>
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="btn btn-back"
+      >
+        Back to Dashboard
+      </button>
     </div>
   );
 }
