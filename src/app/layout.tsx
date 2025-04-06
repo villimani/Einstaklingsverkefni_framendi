@@ -4,8 +4,8 @@ import Navbar from '@/components/Navbar';
 
 
 export const metadata = {
-  title: "Finance Manager",
-  description: "Manage your personal finances",
+  title: "Notepad Library",
+  description: "Where everybody studies together",
 };
 
 export default function RootLayout({
