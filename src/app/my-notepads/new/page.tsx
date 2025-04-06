@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { CreateNotepadRequest } from '@/types/note';
-import { createNotepad } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import './new.css';
 import { useAuth } from '@/context/AuthContext';
@@ -17,10 +16,32 @@ const CreateNotepadPage = () => {
   const router = useRouter();
   const { user, token } = useAuth();
 
+  const createNotepad = async (token: string, notepadData: CreateNotepadRequest) => {
+    const response = await fetch('https://api-einstaklingsverkefni-veff2.onrender.com/notepads', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(notepadData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to create notepad');
+    }
+
+    return await response.json();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title) {
+    // Clear previous errors
+    setError('');
+
+    // Validate inputs
+    if (!title.trim()) {
       setError('Title is required');
       return;
     }
@@ -31,19 +52,31 @@ const CreateNotepadPage = () => {
     }
 
     setLoading(true);
+
     try {
       const notepadData: CreateNotepadRequest = { 
-        title, 
-        description, 
+        title: title.trim(), 
+        description: description.trim(), 
         isPublic, 
         ownerId: user.id 
       };
       
-      await createNotepad(token, notepadData);
-      router.push('/my-notepads');
+      const result = await createNotepad(token, notepadData);
+      
+      // Redirect only after successful creation
+      if (result?.id) {
+        router.push('/my-notepads');
+      } else {
+        throw new Error('Unexpected response from server');
+      }
     } catch (error) {
       console.error('Error creating notepad:', error);
       setError(error instanceof Error ? error.message : 'Failed to create notepad');
+      
+      // If there's a network error, suggest checking connection
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,39 +85,88 @@ const CreateNotepadPage = () => {
   return (
     <div className="create-notepad-container">
       <h1>Create a New Notepad</h1>
-      {error && <p className="error">{error}</p>}
+      
+      {error && (
+        <div className="error-message">
+          {error}
+          <button 
+            onClick={() => setError('')}
+            className="dismiss-error"
+            aria-label="Dismiss error"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="title">Title</label>
+        <div className="form-group">
+          <label htmlFor="title">Title*</label>
           <input
             type="text"
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            disabled={loading}
+            maxLength={100}
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            disabled={loading}
+            maxLength={500}
+            rows={4}
           />
         </div>
-        <div>
+
+        <div className="form-group checkbox-group">
           <label>
             <input
               type="checkbox"
               checked={isPublic}
-              onChange={() => setIsPublic((prev) => !prev)}
+              onChange={() => setIsPublic(!isPublic)}
+              disabled={loading}
             />
-            Public
+            <span>Make this notepad public</span>
           </label>
+          <p className="hint">
+            {isPublic 
+              ? 'Anyone can view this notepad' 
+              : 'Only you can view this notepad'}
+          </p>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Creating...' : 'Create Notepad'}
-        </button>
+
+        <div className="form-actions">
+          <button 
+            type="submit" 
+            disabled={loading || !title.trim()}
+            className={loading ? 'loading' : ''}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Creating...
+              </>
+            ) : (
+              'Create Notepad'
+            )}
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={() => router.back()}
+            disabled={loading}
+            className="secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
