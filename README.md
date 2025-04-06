@@ -11,11 +11,11 @@ Kerfið samanstendur af:
 - **Bakendi** Bakendinn er útfærður með hono typescript
 - **REST API** REST Api vefþjónusta er útfærð sem sér um samskipti við bakendann
 - **Framendi** er útfærður með Next.js (React framework)
-- **Notendaumsjón**: Notendur hafa eigin aðgang og geta stjórnað aðgangi að glósum
-- **Verkefni sett upp í hýsingu** með CI/CD ferlum
-- **Gagnagrunnur** (PostgreSQL) með Prisma sem ORM
+- **Notendaumsjón**: Notendur hafa eigin aðgang og geta stjórnað aðgangi að glósunum sínum
+- **Verkefni sett upp í hýsingu** Framendi hýstur á Vercel, bakendi hýstur á Render 
+- **Gagnagrunnur** (PostgreSQL) með Prisma sem ORM og er hýstur á Neon
 
-## Tæknistack
+## Tækni
 
 ### Bakendi:
 - Hono (fyrir API þjón)
@@ -27,9 +27,9 @@ Kerfið samanstendur af:
 ### Framendi:
 - Next.js (React framework)
 - TypeScript
-- CSS módúlar (fyrir stílsmíði)
+- CSS skrár fyrir útlit
 
 ### Önnur tól:
 - Git fyrir útgáfustjórnun
-- Render.com fyrir hýsingu
+- Render.com og Vercel.com fyrir hýsingu
 - CI/CD pipeline
