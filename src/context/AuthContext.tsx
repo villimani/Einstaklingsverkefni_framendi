@@ -1,21 +1,19 @@
-// context/AuthContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User, AuthContextType } from "@/types/auth";
 
-// Create context with undefined initial value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Auth Provider component
+const API_BASE_URL = "https://api-einstaklingsverkefni-veff2.onrender.com";
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Check for existing login on page load
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
@@ -28,22 +26,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  // Login function
   const login = async (email: string, password: string) => {
     setIsLoading(true);
 
     try {
-      // Make API request to login
-      const response = await fetch(
-        "https://vef2-hopverkefni1-w64i.onrender.com/users/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!response.ok) {
         throw new Error("Login failed");
@@ -51,11 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
 
-      // Save user and token
       setUser(data.user);
       setToken(data.token);
-
-      // Save to localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -68,32 +58,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Register function
-  const register = async (
-    username: string,
-    email: string,
-    password: string
-  ) => {
+  const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
 
     try {
-      // Make API request to register
-      const response = await fetch(
-        "https://vef2-hopverkefni1-w64i.onrender.com/users/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, email, password }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
 
       if (!response.ok) {
         throw new Error("Registration failed");
       }
 
-      // Login after successful registration
+      // Login right after successful registration
       return await login(email, password);
     } catch (error) {
       console.error("Registration error:", error);
@@ -102,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -111,7 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
-  // Context value
   const value: AuthContextType = {
     user,
     token,
@@ -124,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Custom hook to use auth
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

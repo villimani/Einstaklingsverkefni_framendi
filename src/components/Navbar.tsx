@@ -11,24 +11,17 @@ export default function Navbar() {
 
   useEffect(() => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       setIsLoggedIn(!!token);
-      
-      if (!token && 
-          (pathname === '/dashboard' || 
-           pathname === '/accounts' || 
-           pathname === '/transactions' || 
-           pathname === '/uploads')) {
-        router.push('/unauthorized');
+
+      // Redirect to '/unauthorized' if not logged in and trying to access private pages
+      if (!token && pathname === "/my-notepads") {
+        router.push("/unauthorized");
       }
     } catch (error) {
-      console.error('Error checking login status:', error);
+      console.error("Error checking login status:", error);
     }
   }, [pathname, router]);
-
-  if (pathname === "/" || pathname === "/unauthorized") {
-    return null;
-  }
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -44,42 +37,32 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-content">
-          <div className="nav-brand">Finance Manager</div>
+          <div className="nav-brand">Notepad Manager</div>
 
-          {isLoggedIn && (
-            <div className="nav-buttons">
-              <button
-                onClick={() => handleNavigation('/dashboard')}
-                className={`nav-button ${pathname === "/dashboard" ? "active" : ""}`}
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => handleNavigation('/accounts')}
-                className={`nav-button ${pathname === "/accounts" ? "active" : ""}`}
-              >
-                Accounts
-              </button>
-              <button
-                onClick={() => handleNavigation('/transactions')}
-                className={`nav-button ${pathname === "/transactions" ? "active" : ""}`}
-              >
-                Transactions
-              </button>
-              <button
-                onClick={() => handleNavigation('/uploads')}
-                className={`nav-button ${pathname === "/uploads" ? "active" : ""}`}
-              >
-                Uploads
-              </button>
+          <div className="nav-buttons">
+            <button
+              onClick={() => handleNavigation("/public-notepads")}
+              className={`nav-button ${pathname === "/public-notepads" ? "active" : ""}`}
+            >
+              Public Notepads
+            </button>
+            
+            <button
+              onClick={() => handleNavigation(isLoggedIn ? "/my-notepads" : "/registration")} // Redirect to /registration if not logged in
+              className={`nav-button ${pathname === (isLoggedIn ? "/my-notepads" : "/registration") ? "active" : ""}`}
+            >
+              {isLoggedIn ? "My Notepads" : "Login"}
+            </button>
+
+            {isLoggedIn && (
               <button
                 onClick={handleLogout}
                 className="nav-logout"
               >
                 Logout
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </nav>

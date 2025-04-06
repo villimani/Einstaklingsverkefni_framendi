@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://vef2-hopverkefni1-w64i.onrender.com/:path*',
+        destination: 'https://api-einstaklingsverkefni-veff2.onrender.com/:path*',
       },
     ];
   },

@@ -20,7 +20,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
 
     const success = await register(username, email, password);
     if (!success) {
-      setError("Registration failed. Try again");
+      setError("Registration failed. Please check your details and try again.");
     } else {
       onSuccess?.();
     }

@@ -1,86 +1,102 @@
 /* navbar.css */
 :root {
-    --primary-color: #2563eb;
-    --primary-light: #3b82f6;
-    --primary-dark: #1d4ed8;
-    --primary-hover: #1e40af;
-    --rounded-lg: 0.5rem;
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-    --transition: all 0.2s ease;
-  }
-  
-  .navbar {
-    background-color: var(--primary-color);
-    color: white;
-    box-shadow: var(--shadow-md);
-    padding: 1rem 0;
-    width: 100%;
-  }
-  
-  .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-  
-  .nav-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .nav-brand {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-  
-  .nav-buttons {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
-  
-  .nav-button {
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--rounded-lg);
-    background-color: var(--primary-light);
-    color: white;
-    font-weight: 500;
-    transition: var(--transition);
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-  }
-  
-  .nav-button:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .nav-button.active {
-    background-color: var(--primary-dark);
-    box-shadow: var(--shadow-inner);
-  }
-  
-  .nav-logout {
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--rounded-lg);
-    background-color: #ef4444;
-    color: white;
-    font-weight: 500;
-    transition: var(--transition);
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .nav-logout:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
+  --primary-color: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-hover: #1e40af;
+  --rounded-lg: 0.5rem;
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --transition: all 0.2s ease;
+}
+
+.navbar {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-md);
+  padding: 1rem 0;
+  width: 100%;
+  position: fixed; /* Make the navbar fixed at the top */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Make sure the navbar stays on top */
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--rounded-lg);
+  background-color: var(--primary-light);
+  color: white;
+  font-weight: 500;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.nav-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-button.active {
+  background-color: var(--primary-dark);
+  box-shadow: var(--shadow-inner);
+}
+
+.nav-logout {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--rounded-lg);
+  background-color: #ef4444;
+  color: white;
+  font-weight: 500;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.nav-logout:hover {
+  background-color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Main container needs padding-top to ensure the content doesn't overlap the fixed navbar */
+.main-container {
+  padding-top: 80px; /* Adjust this value depending on the height of the navbar */
+}
+
+/* Ensure the body doesn't have default margin that can cause issues */
+body {
+  margin: 0;
+  padding: 0;
+}

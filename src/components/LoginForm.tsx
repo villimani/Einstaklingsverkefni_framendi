@@ -19,7 +19,7 @@ export default function LoginForm() {
     if (!success) {
       setError("Invalid credentials. Please try again");
     } else {
-      router.push("/dashboard");
+      router.push("/my-notepads");
     }
   };
 
