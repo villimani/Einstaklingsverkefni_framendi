@@ -76,7 +76,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           minLength={5}
         />
         <p className="text-sm text-gray-500 mt-1">
-          Password must be at least 5 characters
+          Password must be at least 8 characters with atleast one upper case character and one special character
         </p>
       </div>
 

@@ -37,7 +37,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-content">
-          <div className="nav-brand">Notepad Manager</div>
+          <div className="nav-brand">Notepad Library</div>
 
           <div className="nav-buttons">
             <button

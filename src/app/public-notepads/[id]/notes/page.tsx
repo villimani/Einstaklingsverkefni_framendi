@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Notepad, Note, PaginatedResponse } from '@/types/note';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import './notepad-notes.css';
 
@@ -72,7 +71,7 @@ const NotepadNotesPage = () => {
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      setExpandedNoteId(null); // Collapse any expanded note when changing pages
+      setExpandedNoteId(null);
       router.push(`/public-notepads/${notepadId}/notes?page=${newPage}&limit=${pagination.limit}`);
     }
   };
@@ -86,14 +85,9 @@ const NotepadNotesPage = () => {
 
   return (
     <div className="container">
-      <Link href="/public-notepads" className="back-link">
-        &larr; Back to Public Notepads
-      </Link>
-      
       {notepad && (
         <div className="notepad-header">
           <h1>{notepad.title}</h1>
-          <p className="description">{notepad.description}</p>
           <div className="notepad-meta">
             <span>Total Notes: {pagination.total}</span>
           </div>
@@ -132,10 +126,6 @@ const NotepadNotesPage = () => {
                     {note.content.split('\n').map((paragraph, i) => (
                       <p key={i}>{paragraph || <br />}</p>
                     ))}
-                  </div>
-                  <div className="note-meta">
-                    <span>Created: {new Date(note.createdAt).toLocaleDateString()}</span>
-                    <span>Updated: {new Date(note.updatedAt).toLocaleDateString()}</span>
                   </div>
                 </li>
               ))}

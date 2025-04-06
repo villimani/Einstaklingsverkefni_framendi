@@ -33,7 +33,6 @@ const EditNotePage = () => {
         const parsedId = parseInt(noteId as string);
         if (isNaN(parsedId)) throw new Error('Invalid note ID');
 
-        // API call to get the note by ID
         const response = await fetch(
           `https://api-einstaklingsverkefni-veff2.onrender.com/notes/${noteId}`,
           {
@@ -48,15 +47,8 @@ const EditNotePage = () => {
         if (!response.ok) throw new Error('Failed to fetch note');
 
         const noteData = await response.json();
+        if (!noteData) throw new Error('Note not found');
 
-        // Log the fetched note data
-        console.log('Fetched note data:', noteData);
-
-        if (!noteData) {
-          throw new Error('Note not found');
-        }
-
-        // Populate the form with the fetched data
         setTitle(noteData.title);
         setContent(noteData.content);
       } catch (error) {
@@ -70,7 +62,6 @@ const EditNotePage = () => {
     fetchNote();
   }, [noteId, token]);
 
-  // Handle form submission (updating the note)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,7 +84,6 @@ const EditNotePage = () => {
     try {
       const noteData: UpdateNoteRequest = { title, content };
 
-      // API call to update the note
       const updateResponse = await fetch(
         `https://api-einstaklingsverkefni-veff2.onrender.com/notes/${noteId}`,
         {
@@ -107,8 +97,6 @@ const EditNotePage = () => {
       );
 
       if (!updateResponse.ok) throw new Error('Failed to update note');
-
-      // Redirect to the notepad page after successfully updating the note
       router.push(`/my-notepads/${id}/notes`);
     } catch (error) {
       console.error('Error updating note:', error);

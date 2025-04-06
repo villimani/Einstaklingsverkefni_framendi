@@ -41,10 +41,18 @@
     line-height: 1.6;
 }
 
+.notepad-header {
+    display: block; /* Ensure it's not flex */
+}
+
 .notepad-meta {
-    margin-top: 1rem;
-    font-size: 0.875rem;
-    color: #6b7280;
+    display: block;
+    width: 100%;
+}
+
+.notepad-meta span {
+    display: block;
+    margin-top: 0.5rem;
 }
 
 .actions-bar {

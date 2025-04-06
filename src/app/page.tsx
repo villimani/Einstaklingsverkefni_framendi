@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="main-container">
       <div className="welcome-card">
-        <h3>Welcome to Notepad Manager</h3>
+        <h3>Welcome to Notepad Library</h3>
         <p>
           Manage your notes, stay organized, and access your notes from anywhere.
         </p>
@@ -15,7 +15,6 @@ export default function Home() {
           <li>Easy note creation</li>
           <li>Share your notes</li>
           <li>Manage multiple notepads</li>
-          <li>Secure access with login</li>
         </ul>
       </div>
     </div>
