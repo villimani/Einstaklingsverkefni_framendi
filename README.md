@@ -9,9 +9,10 @@
 Hér eru slóðir á útfærslur á bakenda og framenda:
 
 Framendi- https://github.com/villimani/Einstaklingsverkefni_framendi
+
 Bakendi - https://github.com/villimani/Api_einstaklingsverkefni_Veff2
 
-Hér er slóð á hýsingu af verkefninu:
+Hér er slóð á hýsingu af verkefninu- https://einstaklingsverkefni-framendi.vercel.app
 
 
 
