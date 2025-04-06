@@ -11,54 +11,47 @@ const EditNotePage = () => {
   const router = useRouter();
   const { user, token } = useAuth();
 
-  // Get noteId and notepadId from URL parameters
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const noteId = Array.isArray(params.noteId) ? params.noteId[0] : params.noteId;
 
-  // States for form data and error handling
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch the note when the page loads or when noteId or token changes
+  const fetchNote = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch(
+        `https://api-einstaklingsverkefni-veff2.onrender.com/notes/${noteId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+  
+      const noteData = await response.json();
+  
+      setTitle(noteData.title);
+      setContent(noteData.content);
+  
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load note data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!noteId || !token) return;
-
-    const fetchNote = async () => {
-      setLoading(true);
-      setError('');
-
-      try {
-        const parsedId = parseInt(noteId as string);
-        if (isNaN(parsedId)) throw new Error('Invalid note ID');
-
-        const response = await fetch(
-          `https://api-einstaklingsverkefni-veff2.onrender.com/notes/${noteId}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (!response.ok) throw new Error('Failed to fetch note');
-
-        const noteData = await response.json();
-        if (!noteData) throw new Error('Note not found');
-
-        setTitle(noteData.title);
-        setContent(noteData.content);
-      } catch (error) {
-        console.error('Error fetching note:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load note data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNote();
   }, [noteId, token]);
 
@@ -81,25 +74,32 @@ const EditNotePage = () => {
     }
 
     setLoading(true);
-    try {
-      const noteData: UpdateNoteRequest = { title, content };
 
+    try {
+      const noteData: UpdateNoteRequest = { 
+        title, 
+        content 
+      };
+      
       const updateResponse = await fetch(
         `https://api-einstaklingsverkefni-veff2.onrender.com/notes/${noteId}`,
         {
           method: 'PATCH',
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(noteData),
         }
       );
 
-      if (!updateResponse.ok) throw new Error('Failed to update note');
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json();
+        throw new Error(errorData.message || 'Failed to update note');
+      }
+
       router.push(`/my-notepads/${id}/notes`);
     } catch (error) {
-      console.error('Error updating note:', error);
       setError(error instanceof Error ? error.message : 'Failed to update note');
     } finally {
       setLoading(false);
@@ -107,11 +107,11 @@ const EditNotePage = () => {
   };
 
   return (
-    <div className="edit-note-container">
+    <div className="edit-container">
       <h1>Edit Note</h1>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-group">
           <label htmlFor="title">Title</label>
           <input
             id="title"
@@ -119,18 +119,21 @@ const EditNotePage = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="content">Content</label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
+            disabled={loading}
+            rows={8}
           />
         </div>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="submit-button">
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
