@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Notepad, PaginatedResponse } from '@/types/note';
-import { deleteNotepad } from '@/lib/api';
 import './my-notepads.css';
 
 const UserNotepadsPage = () => {
@@ -74,25 +73,41 @@ const UserNotepadsPage = () => {
   const handleDelete = async (id: number) => {
     const confirmed = confirm('Are you sure you want to delete this notepad?');
     if (!confirmed) return;
-
+  
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
     }
-
+  
     try {
-      await deleteNotepad(token, id);
-      if (pagination.page > pagination.totalPages - 1) {
-        setPagination((prev) => ({
-          ...prev,
-          page: prev.page - 1,
-        }));
-      } else {
-        fetchNotepads(pagination.page);
+      const response = await fetch(`https://api-einstaklingsverkefni-veff2.onrender.com/notepads/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to delete notepad');
       }
-    } catch {
-      alert('Failed to delete notepad');
+  
+      // Calculate if we need to change pages
+      const willLastItemOnPageBeDeleted = notepads.length === 1 && pagination.page > 1;
+      
+      if (willLastItemOnPageBeDeleted) {
+        // Move to previous page if we deleted the last item on the current page
+        const newPage = pagination.page - 1;
+        setPagination(prev => ({ ...prev, page: newPage }));
+        await fetchNotepads(newPage);
+      } else {
+        // Otherwise, refetch current page
+        await fetchNotepads(pagination.page);
+      }
+    } catch (error) {
+      console.error('Delete errors:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete notepad');
     }
   };
 
