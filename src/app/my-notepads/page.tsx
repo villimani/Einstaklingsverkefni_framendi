@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Notepad, PaginatedResponse } from '@/types/note';
@@ -13,14 +13,13 @@ const UserNotepadsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 12,  // Ensure this is consistently used for the limit
+    limit: 12,
     totalPages: 1,
   });
   const [showManage, setShowManage] = useState(false);
   const router = useRouter();
 
-  // Fetch function to get the notepads data
-  const fetchNotepads = async (page: number) => {
+  const fetchNotepads = useCallback(async (page: number) => {
     setLoading(true);
     setError(null);
     const token = localStorage.getItem('token');
@@ -31,7 +30,7 @@ const UserNotepadsPage = () => {
 
     try {
       const response = await fetch(
-        `https://api-einstaklingsverkefni-veff2.onrender.com/user/notepads?page=${page}&limit=${pagination.limit}`, // Ensure limit is used here
+        `https://api-einstaklingsverkefni-veff2.onrender.com/user/notepads?page=${page}&limit=${pagination.limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,21 +50,20 @@ const UserNotepadsPage = () => {
       const data: PaginatedResponse<Notepad> = await response.json();
       setNotepads(data.data);
 
-      // Ensure pagination.totalPages is correctly set
       setPagination((prev) => ({
         ...prev,
         totalPages: data.pagination.totalPages,
       }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch notepads');
+    } catch {
+      setError('Failed to fetch notepads');
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.limit, router]);
 
   useEffect(() => {
-    fetchNotepads(pagination.page); // Pass the current page directly to fetch
-  }, [pagination.page, pagination.limit, router]);
+    fetchNotepads(pagination.page);
+  }, [pagination.page, fetchNotepads]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -85,9 +83,15 @@ const UserNotepadsPage = () => {
 
     try {
       await deleteNotepad(token, id);
-      // After deleting, force refetch
-      fetchNotepads(pagination.page); // Pass the current page after deletion
-    } catch (err) {
+      if (pagination.page > pagination.totalPages - 1) {
+        setPagination((prev) => ({
+          ...prev,
+          page: prev.page - 1,
+        }));
+      } else {
+        fetchNotepads(pagination.page);
+      }
+    } catch {
       alert('Failed to delete notepad');
     }
   };
@@ -110,7 +114,7 @@ const UserNotepadsPage = () => {
 
       <div className="notepads-list">
         {notepads.length === 0 ? (
-          <p>You don't have any notepads yet.</p>
+          <p>You don&apos;t have any notepads yet.</p>
         ) : (
           <ul>
             {notepads.map((notepad) => (

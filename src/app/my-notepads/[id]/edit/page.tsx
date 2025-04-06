@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { UpdateNotepadRequest } from '@/types/note';
-import { useAuth } from '@/context/AuthContext'; // Assuming you have an auth context
+import { useAuth } from '@/context/AuthContext';
 import './edit.css';
 
 const EditNotepadPage = () => {
-  const { id } = useParams(); // Get notepad ID from URL parameters
+  const { id } = useParams();
   const router = useRouter();
-  const { user, token } = useAuth(); // Get user and token from auth context
+  const { user, token } = useAuth();
 
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -18,7 +18,6 @@ const EditNotepadPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    // Ensure that id is a string before calling parseInt
     if (typeof id === 'string' && token) {
       const fetchNotepad = async () => {
         setLoading(true);
@@ -37,7 +36,7 @@ const EditNotepadPage = () => {
           setTitle(notepadData.title);
           setDescription(notepadData.description);
           setIsPublic(notepadData.isPublic);
-        } catch (error) {
+        } catch {
           setError('Failed to load notepad data');
         } finally {
           setLoading(false);
@@ -66,9 +65,7 @@ const EditNotepadPage = () => {
       return;
     }
   
-    // Handle if id is an array of strings (e.g., from query parameters)
     const idAsString = Array.isArray(id) ? id[0] : id;
-  
     const notepadId = parseInt(idAsString);
   
     if (isNaN(notepadId)) {
@@ -95,7 +92,7 @@ const EditNotepadPage = () => {
 
       if (!response.ok) throw new Error('Failed to update notepad');
 
-      router.push(`/my-notepads`);
+      router.push('/my-notepads');
     } catch (error) {
       console.error('Error updating notepad:', error);
       setError(error instanceof Error ? error.message : 'Failed to update notepad');

@@ -5,7 +5,7 @@ import { CreateNotepadRequest } from '@/types/note';
 import { createNotepad } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import './new.css';
-import { useAuth } from '@/context/AuthContext'; // Assuming you have an auth context
+import { useAuth } from '@/context/AuthContext';
 
 const CreateNotepadPage = () => {
   const [title, setTitle] = useState<string>('');
@@ -15,7 +15,7 @@ const CreateNotepadPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
-  const { user, token } = useAuth(); // Get user and token from auth context
+  const { user, token } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +39,8 @@ const CreateNotepadPage = () => {
         ownerId: user.id 
       };
       
-      const createdNotepad = await createNotepad(token, notepadData);
-      router.push(`/my-notepads`);
+      await createNotepad(token, notepadData);
+      router.push('/my-notepads');
     } catch (error) {
       console.error('Error creating notepad:', error);
       setError(error instanceof Error ? error.message : 'Failed to create notepad');
