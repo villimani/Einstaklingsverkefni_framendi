@@ -125,7 +125,7 @@ const CreateNotepadPage = () => {
           />
         </div>
 
-        <div className="form-group checkbox-group">
+        <div className="form-group checkbox-group left-align">
           <label>
             <input
               type="checkbox"
@@ -156,15 +156,6 @@ const CreateNotepadPage = () => {
             ) : (
               'Create Notepad'
             )}
-          </button>
-          
-          <button 
-            type="button" 
-            onClick={() => router.back()}
-            disabled={loading}
-            className="secondary"
-          >
-            Cancel
           </button>
         </div>
       </form>
