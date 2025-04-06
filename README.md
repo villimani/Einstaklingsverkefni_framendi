@@ -8,9 +8,9 @@
 
 Kerfið samanstendur af:
 
-- **Bakendi** útfærður með Hono (lightweight web framework fyrir JavaScript/TypeScript)
-- **REST API** sem skilar gögnum um glósupakka og meðhöndlar beiðnir frá framendanum
-- **Framendi** útfærður með Next.js (React framework)
+- **Bakendi** Bakendinn er útfærður með hono typescript
+- **REST API** REST Api vefþjónusta er útfærð sem sér um samskipti við bakendann
+- **Framendi** er útfærður með Next.js (React framework)
 - **Notendaumsjón**: Notendur hafa eigin aðgang og geta stjórnað aðgangi að glósum
 - **Verkefni sett upp í hýsingu** með CI/CD ferlum
 - **Gagnagrunnur** (PostgreSQL) með Prisma sem ORM
