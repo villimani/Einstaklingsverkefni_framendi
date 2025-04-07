@@ -59,7 +59,7 @@ const PublicNotepadsPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <div className="notepads-list">
+          <div className="notepads-list-public">
             {notepads.length === 0 ? (
               <p>No public notepads found.</p>
             ) : (

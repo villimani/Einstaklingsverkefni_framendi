@@ -118,10 +118,10 @@ const UserNotepadsPage = () => {
     <div className="user-notepads-container">
 
       <div className="actions-bar">
-        <Link href="/my-notepads/new" className="create-link">
+        <Link href="/my-notepads/new" className="create-link-1">
           + Create New Notepad
         </Link>
-        <button onClick={() => setShowManage(!showManage)} className="manage-button">
+        <button onClick={() => setShowManage(!showManage)} className="manage-button-1">
           {showManage ? 'View Mode' : 'Manage Mode'}
         </button>
       </div>
@@ -139,17 +139,17 @@ const UserNotepadsPage = () => {
                 </div>
                 <p className="description">{notepad.description}</p>
                 <div className="notepad-actions">
-                  <Link href={`/my-notepads/${notepad.id}/notes`} className="view-link">
+                  <Link href={`/my-notepads/${notepad.id}/notes`} className="view-link-1">
                     View Notes
                   </Link>
                   {showManage && (
                     <>
-                      <Link href={`/my-notepads/${notepad.id}/edit`} className="edit-link">
+                      <Link href={`/my-notepads/${notepad.id}/edit`} className="edit-link-1">
                         Edit
                       </Link>
                       <button
                         onClick={() => handleDelete(notepad.id)}
-                        className="delete-button"
+                        className="delete-button-1"
                       >
                         Delete
                       </button>
@@ -167,7 +167,7 @@ const UserNotepadsPage = () => {
           <button
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
-            className="page-button"
+            className="page-button-1"
           >
             Previous
           </button>
@@ -177,7 +177,7 @@ const UserNotepadsPage = () => {
           <button
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
-            className="page-button"
+            className="page-button-1"
           >
             Next
           </button>
