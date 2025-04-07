@@ -20,12 +20,7 @@
   }
   
   /* Header */
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
+
 
   
  
@@ -36,7 +31,7 @@
   }
   
   /* Notepads List */
-  .notepads-list {
+  .notepads-list-public {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
@@ -45,10 +40,10 @@
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    margin-top: 80px;
   }
   
-  .notepads-list ul {
+  .notepads-list-public ul {
     list-style: none;
     padding: 20px;
     margin: 0;
@@ -59,7 +54,7 @@
     justify-content: center;
   }
   
-  .notepads-list li.notepad-item {
+  .notepads-list-public li.notepad-item {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -69,7 +64,7 @@
     transition: transform 0.3s ease;
   }
   
-  .notepads-list li:hover {
+  .notepads-list-public li:hover {
     transform: translateY(-5px);
   }
   

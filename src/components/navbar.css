@@ -21,6 +21,7 @@
   left: 0;
   right: 0;
   z-index: 1000; /* Make sure the navbar stays on top */
+  border-bottom: 3px solid var(--primary-dark);
 }
 
 .nav-container {
