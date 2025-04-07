@@ -96,7 +96,7 @@
   padding-top: 80px; /* Adjust this value depending on the height of the navbar */
 }
 
-/* Ensure the body doesn't have default margin that can cause issues */
+
 body {
   margin: 0;
   padding: 0;
