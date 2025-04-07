@@ -116,11 +116,11 @@ const NotepadNotesPage = () => {
     }
   };
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (error) return <div className="container error">{error}</div>;
+  if (loading) return <div className="container-2">Loading...</div>;
+  if (error) return <div className="container-2 error">{error}</div>;
 
   return (
-    <div className="container">
+    <div className="container-2">
       
       {notepad && (
         <div className="notepad-header">
@@ -131,13 +131,13 @@ const NotepadNotesPage = () => {
         </div>
       )}
 
-      <div className="actions-bar">
-        <Link href={`/my-notepads/${notepadId}/notes/new-note`} className="create-link">
+      <div className="actions-bar-1">
+        <Link href={`/my-notepads/${notepadId}/notes/new-note`} className="create-link-2">
           + Create New Note
         </Link>
         <button 
           onClick={() => setShowManage(!showManage)} 
-          className="manage-button"
+          className="manage-button-2"
         >
           {showManage ? 'View Mode' : 'Manage Mode'}
         </button>
@@ -182,7 +182,7 @@ const NotepadNotesPage = () => {
                     <div className="note-actions">
                       <Link 
                         href={`/my-notepads/${notepadId}/notes/${note.id}/edit-note`} 
-                        className="edit-link"
+                        className="edit-link-2"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Edit
@@ -192,7 +192,7 @@ const NotepadNotesPage = () => {
                           e.stopPropagation();
                           handleDelete(note.id);
                         }}
-                        className="delete-button"
+                        className="delete-button-2"
                       >
                         Delete
                       </button>
@@ -207,7 +207,7 @@ const NotepadNotesPage = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
-                  className="page-button"
+                  className="page-button-2"
                 >
                   Previous
                 </button>
@@ -217,7 +217,7 @@ const NotepadNotesPage = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.totalPages}
-                  className="page-button"
+                  className="page-button-2"
                 >
                   Next
                 </button>
