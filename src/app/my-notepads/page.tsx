@@ -116,7 +116,6 @@ const UserNotepadsPage = () => {
 
   return (
     <div className="user-notepads-container">
-      <h2>My Notepads</h2>
 
       <div className="actions-bar">
         <Link href="/my-notepads/new" className="create-link">

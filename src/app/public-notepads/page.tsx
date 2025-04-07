@@ -52,7 +52,6 @@ const PublicNotepadsPage = () => {
 
   return (
     <div className="public-notepads-container">
-      <h2>Public Notepads</h2>
       
       {error && <div className="error-message">{error}</div>}
       
