@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const response = await fetch(`https://api-einstaklingsverkefni-veff2.onrender.com/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
